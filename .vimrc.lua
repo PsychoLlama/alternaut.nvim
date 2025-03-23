@@ -16,3 +16,13 @@ require('core.pkg').on_load(function(plugins)
     end)
     :totable()
 end)
+
+-- Define a neovim command to reload the current file.
+vim.api.nvim_create_user_command('Reload', function()
+  local filepath = vim.fn.expand('%:p')
+  local relative_path = filepath:gsub('^.*/lua/', '')
+  local module_name = relative_path:gsub('/', '.'):gsub('.lua$', '')
+
+  vim.print('Reloading ' .. module_name)
+  package.loaded[module_name] = nil
+end, {})
