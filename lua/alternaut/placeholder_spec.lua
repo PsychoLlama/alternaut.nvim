@@ -1,0 +1,5 @@
+describe('alternaut', function()
+  it('passes tests', function()
+    assert.is(true)
+  end)
+end)
