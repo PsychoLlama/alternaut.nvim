@@ -5,7 +5,7 @@ describe('path', function()
     it('can parse an absolute path', function()
       local parsed = path.parse('/home/user/.config/nvim/init.lua')
       assert.are.same({
-        parent = '/home/user/.config/nvim',
+        dir = '/home/user/.config/nvim',
         name = 'init',
         ext = 'lua',
       }, parsed)
@@ -14,7 +14,7 @@ describe('path', function()
     it('can parse a relative path', function()
       local parsed = path.parse('init.lua')
       assert.are.same({
-        parent = '.',
+        dir = '.',
         name = 'init',
         ext = 'lua',
       }, parsed)

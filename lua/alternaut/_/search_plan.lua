@@ -1,0 +1,41 @@
+local M = {}
+
+--- Given a source file and a provider, create a search path for all possible
+--- locations of the alternate file (e.g. a `.h` file or test). This does not
+--- handle returning from an alternate back to the source file.
+--- @param source_path string
+--- @param provider alternaut.Provider
+--- @return string[]
+function M.get_alternate_search_path(source_path, provider)
+  local template = require('alternaut._.template')
+  local path = require('alternaut._.path')
+
+  local src = path.parse(source_path)
+  local result = {}
+
+  local target_directories = vim.tbl_map(function(directory)
+    local target_dir = path.join(src.dir, directory)
+    return path.normalize(target_dir)
+  end, provider.directories)
+
+  -- Order matters! Check all variations before moving onto the next pattern.
+  for _, pattern in ipairs(provider.patterns) do
+    for _, directory in ipairs(target_directories) do
+      for _, ext in ipairs(provider.extensions.target) do
+        local possible_path = path.join(
+          directory,
+          template.render(pattern, {
+            name = src.name,
+            ext = ext,
+          })
+        )
+
+        table.insert(result, possible_path)
+      end
+    end
+  end
+
+  return result
+end
+
+return M

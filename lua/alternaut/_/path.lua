@@ -18,7 +18,7 @@ function M.is_relative(path)
 end
 
 --- @class alternaut._path.Path
---- @field parent nil|string
+--- @field dir string
 --- @field name string
 --- @field ext nil|string
 ---
@@ -26,15 +26,22 @@ end
 --- @param path string
 --- @return alternaut._path.Path
 function M.parse(path)
-  local parent = vim.fs.dirname(path)
+  local dir = vim.fs.dirname(path)
   local ext = vim.fn.fnamemodify(path, ':e')
   local name = vim.fn.fnamemodify(path, ':t:r')
 
   return {
-    parent = parent,
+    dir = dir,
     name = name,
     ext = ext,
   }
+end
+
+--- Normalize a path.
+--- @param path string
+--- @return string
+function M.normalize(path)
+  return vim.fs.normalize(path)
 end
 
 --- Join multiple path segments.
