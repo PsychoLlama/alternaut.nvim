@@ -1,5 +1,4 @@
 local M = {}
-local log = require('alternaut._log')
 
 --- @type alternaut.Config
 local config = {
@@ -37,7 +36,9 @@ function M.set_config(new_config)
         provider.extensions == nil
         or vim.tbl_isempty(provider.extensions)
       then
-        log.error('Provider "' .. ident .. '" must define `extensions`.')
+        require('alternaut._.log').error(
+          'Provider "' .. ident .. '" must define `extensions`.'
+        )
         return
       end
 

@@ -1,4 +1,4 @@
-local cfg = require('alternaut._config')
+local cfg = require('alternaut._.config')
 
 describe('set_config', function()
   before_each(function()

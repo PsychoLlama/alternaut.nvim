@@ -1,4 +1,4 @@
-local path = require('alternaut._path')
+local path = require('alternaut._.path')
 
 describe('path', function()
   describe('.parse', function()
