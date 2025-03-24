@@ -66,4 +66,27 @@ describe('set_config', function()
       },
     }, cfg.get_config().modes.style.css)
   end)
+
+  it('normalizes directory paths', function()
+    cfg.set_config({
+      modes = {
+        style = {
+          css = {
+            patterns = { '{name}_spec.{ext}' },
+            directories = { './tests' },
+            extensions = { 'py' },
+          },
+        },
+      },
+    })
+
+    assert.are.same({
+      patterns = { '{name}_spec.{ext}' },
+      directories = { 'tests' },
+      extensions = {
+        target = { 'py' },
+        origin = { 'py' },
+      },
+    }, cfg.get_config().modes.style.css)
+  end)
 end)

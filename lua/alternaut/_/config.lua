@@ -10,6 +10,7 @@ local config = {
 --- This function is responsible for normalizing the config before saving it.
 --- @param new_config? alternaut.UserConfig
 function M.set_config(new_config)
+  local path = require('alternaut._.path')
   new_config = vim.deepcopy(new_config or {})
 
   -- Normalize top-level fields.
@@ -31,6 +32,9 @@ function M.set_config(new_config)
 
       -- Default to searching sibling files.
       provider.directories = provider.directories or { '.' }
+
+      -- Simplify directory paths as much as possible.
+      provider.directories = vim.tbl_map(path.normalize, provider.directories)
 
       if
         provider.extensions == nil

@@ -17,8 +17,16 @@ function M.is_relative(path)
   return not M.is_absolute(path)
 end
 
+--- Return the basename of a path.
+--- @param path string
+--- @return string
+function M.basename(path)
+  return vim.fs.basename(path)
+end
+
 --- @class alternaut._path.Path
 --- @field dir string
+--- @field basename string
 --- @field name string
 --- @field ext nil|string
 ---
@@ -29,9 +37,11 @@ function M.parse(path)
   local dir = vim.fs.dirname(path)
   local ext = vim.fn.fnamemodify(path, ':e')
   local name = vim.fn.fnamemodify(path, ':t:r')
+  local basename = vim.fn.fnamemodify(path, ':t')
 
   return {
     dir = dir,
+    basename = basename,
     name = name,
     ext = ext,
   }

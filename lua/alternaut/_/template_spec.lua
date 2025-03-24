@@ -42,4 +42,51 @@ describe('template', function()
       )
     end)
   end)
+
+  describe('extract_name', function()
+    it('extracts the name from a filename', function()
+      local filename = 'foo_spec.py'
+      local pattern = '{name}_spec.{ext}'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.are.equal('foo', result)
+    end)
+
+    it('extracts the name from a filename with multiple parts', function()
+      local filename = 'foo_bar_spec.py'
+      local pattern = '{name}_spec.{ext}'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.are.equal('foo_bar', result)
+    end)
+
+    it('extracts the name when using a prefix', function()
+      local filename = 'test_foo.py'
+      local pattern = 'test_{name}.{ext}'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.are.equal('foo', result)
+    end)
+
+    it('extracts the name when using a prefix and suffix', function()
+      local filename = 'test_foo_bar.unit.py'
+      local pattern = 'test_{name}.unit.{ext}'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.are.equal('foo_bar', result)
+    end)
+
+    it('parses the name from cursed filenames', function()
+      local filename = '+?[]()..foo-bar+?[]().py'
+      local pattern = '+?[]()..{name}+?[]().{ext}'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.are.equal('foo-bar', result)
+    end)
+  end)
 end)

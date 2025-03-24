@@ -9,6 +9,7 @@ read_globals = {
   'assert',
   'before_each',
   'after_each',
+  'pending',
 }
 
 files['tests'] = {

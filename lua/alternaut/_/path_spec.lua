@@ -6,6 +6,7 @@ describe('path', function()
       local parsed = path.parse('/home/user/.config/nvim/init.lua')
       assert.are.same({
         dir = '/home/user/.config/nvim',
+        basename = 'init.lua',
         name = 'init',
         ext = 'lua',
       }, parsed)
@@ -15,6 +16,7 @@ describe('path', function()
       local parsed = path.parse('init.lua')
       assert.are.same({
         dir = '.',
+        basename = 'init.lua',
         name = 'init',
         ext = 'lua',
       }, parsed)
@@ -38,6 +40,17 @@ describe('path', function()
 
     it('returns true for a relative path', function()
       assert.is_true(path.is_relative('init.lua'))
+    end)
+  end)
+
+  describe('.basename', function()
+    it('can extract the basename of a path', function()
+      assert.are.equal(
+        path.basename('/home/user/.config/nvim/init.lua'),
+        'init.lua'
+      )
+
+      assert.are.equal(path.basename('init.lua'), 'init.lua')
     end)
   end)
 

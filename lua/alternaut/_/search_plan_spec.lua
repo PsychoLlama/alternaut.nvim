@@ -75,4 +75,56 @@ describe('search_plan', function()
       }, result)
     end)
   end)
+
+  describe('get_source_search_path', function()
+    it('returns a list of possible locations for the source file', function()
+      local result = plan.get_source_search_path('/foo/bar_spec.py', {
+        patterns = { '{name}_spec.{ext}' },
+        directories = { '.' },
+        extensions = {
+          target = { 'py' },
+          origin = { 'py' },
+        },
+      })
+
+      assert.are.same({
+        '/foo/bar.py',
+      }, result)
+    end)
+
+    it('searches the correct parent directories', function()
+      local result =
+        plan.get_source_search_path('/foo/__tests__/bar.test.ts', {
+          patterns = { '{name}.test.{ext}' },
+          directories = { '__tests__', '.' },
+          extensions = {
+            target = { 'ts' },
+            origin = { 'ts' },
+          },
+        })
+
+      assert.are.same({
+        '/foo/bar.ts',
+        '/foo/__tests__/bar.ts',
+      }, result)
+    end)
+
+    -- The test could've jumped anywhere in the filesystem. We can't trace it
+    -- back to an origin.
+    it('skips absolute directories (unsolveable)', function()
+      local result =
+        plan.get_source_search_path('/foo/__tests__/bar.test.ts', {
+          patterns = { '{name}.test.{ext}' },
+          directories = { '/tmp', '__tests__' },
+          extensions = {
+            target = { 'ts' },
+            origin = { 'ts' },
+          },
+        })
+
+      assert.are.same({
+        '/foo/bar.ts',
+      }, result)
+    end)
+  end)
 end)
