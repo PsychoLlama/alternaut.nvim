@@ -7,6 +7,8 @@ read_globals = {
   'describe',
   'it',
   'assert',
+  'before_each',
+  'after_each',
 }
 
 files['tests'] = {
