@@ -6,10 +6,45 @@ local config = {
   modes_by_ft = {},
 }
 
+--- Declared config. Normalization is deferred until the first time it's used.
+--- @type alternaut.UserConfig|nil
+local tentative_config = nil
+
 --- Update the user-defined config. May be called multiple times.
---- This function is responsible for normalizing the config before saving it.
+--- Since validation and normalization may be expensive, the cost is deferred
+--- until the first time it's used.
 --- @param new_config? alternaut.UserConfig
 function M.set_config(new_config)
+  tentative_config = new_config
+end
+
+--- Get the current user-defined config. Value is stable, meaning it won't
+--- change if the user updates the config at a later time.
+--- @return alternaut.Config
+function M.get_config()
+  M.apply_tentative_config()
+
+  return config
+end
+
+--- Normalize and save the user-defined config if it exists and is valid.
+function M.apply_tentative_config()
+  if tentative_config == nil then
+    return
+  end
+
+  local new_config = M.validate_and_normalize(tentative_config)
+
+  if new_config then
+    config = new_config
+    tentative_config = nil
+  end
+end
+
+--- Normalize the user-defined config. Returns `nil` if the config is invalid.
+--- @param new_config? alternaut.UserConfig
+--- @return alternaut.Config|nil
+function M.validate_and_normalize(new_config)
   local path = require('alternaut._.path')
   new_config = vim.deepcopy(new_config or {})
 
@@ -62,14 +97,7 @@ function M.set_config(new_config)
     end
   end
 
-  config = new_config
-end
-
---- Get the current user-defined config. Value is stable, meaning it won't
---- change if the user updates the config at a later time.
---- @return alternaut.Config
-function M.get_config()
-  return config
+  return new_config --[[@as alternaut.Config]]
 end
 
 return M
