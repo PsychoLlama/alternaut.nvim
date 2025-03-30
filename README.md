@@ -7,6 +7,9 @@
 
 Alternaut jumps between sources files and "alternate" files, such as tests, styles, headers, templates, or any co-located file with a predictable naming convention.
 
+> [!NOTE]
+> This plugin used to be written in Vimscript. Since v0.6.0 the VimL implementation is deprecated and will be removed in a future release.
+
 ## Example
 
 Say you're working in a python project with pytest. Your structure looks like this:
@@ -48,9 +51,6 @@ When you're editing `project/fibonacci.py` and you run
 It opens the test file. Toggle again and you're back in `fibonacci.py`.
 
 That's the gist of it. See [:help alternaut](https://github.com/PsychoLlama/alternaut.nvim/blob/main/doc/alternaut.txt) for details and specific examples.
-
-> [!NOTE]
-> This plugin used to be written in Vimscript. Since v0.6.0 the VimL implementation is deprecated and will be removed in a future release.
 
 ## Non-Goals
 
