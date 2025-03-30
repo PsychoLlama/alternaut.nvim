@@ -19,6 +19,18 @@
     in
 
     {
+      packages = eachSystem (
+        system: pkgs: rec {
+          default = alternaut-nvim;
+
+          alternaut-nvim = pkgs.vimUtils.buildVimPlugin {
+            pname = "alternaut.nvim";
+            version = self.shortRev or "latest";
+            src = ./.;
+          };
+        }
+      );
+
       devShells = eachSystem (
         system: pkgs:
 
