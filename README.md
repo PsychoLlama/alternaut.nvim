@@ -151,6 +151,8 @@ The way of our people is help files.
 
 ## Recipes
 
+These are some common configurations:
+
 ```lua
 require('alternaut').setup({
   modes = {
