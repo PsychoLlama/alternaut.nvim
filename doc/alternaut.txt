@@ -1,4 +1,4 @@
-*alternaut* jumps between source and test files
+*alternaut* jumps between source files and alternates
 
 Author:   Jesse Gibson <JesseTheGibson@gmail.com>
 Homepage: https://github.com/PsychoLlama/alternaut.vim
@@ -16,7 +16,7 @@ files and "alternate files", such as tests, styles, templates, headers, and so
 forth.
 
 It works by defining a set of naming conventions and how they relate
-a reference point.
+a source file.
 
 Get started: |alternaut.setup|
 
@@ -42,10 +42,10 @@ KEYBINDINGS                                              *alternaut-keybindings*
 It's bad practice to set global keybindings without asking. Alternaut doesn't
 include any keybindings by default.
 
-Personally I use <A-0> (Alt + 0) to toggle between source and test files.
-Styles are toggled with <A-9>.
+Alternaut recommendeds using `Alt-{number}`, like <A-0> or <A-9> to toggle
+between modes.
 
-Here's what it looks like with Neovim:
+Here's what it might look like with Neovim:
 >lua
   vim.keymap.set('n', '<A-0>', function()
     require('alternaut').toggle('test')
@@ -55,7 +55,7 @@ Here's what it looks like with Neovim:
     require('alternaut').toggle('style')
   end)
 
-I've heard others use `<leader>a`. It's up to you.
+This is up to you.
 
 ------------------------------------------------------------------------------
 MODES                                                           *alternaut.Mode*
@@ -165,10 +165,22 @@ These are some common configurations:
           extensions = { 'py' },
         },
 
+        rust = {
+          patterns = { '{name}_test.{ext}', '{name}.{ext}' },
+          directories = { 'tests', '.' },
+          extensions = { 'rs' },
+        },
+
         go = {
           patterns = { '{name}_spec.{ext}' },
           directories = { '.' },
           extensions = { 'go' },
+        },
+
+        busted = {
+          patterns = { '{name}_spec.{ext}' },
+          directories = { '.', 'spec' },
+          extensions = { 'lua' },
         },
 
         vader = {
@@ -178,12 +190,6 @@ These are some common configurations:
             target = { 'vader' },
             origin = { 'vim' },
           },
-        },
-
-        rust = {
-          patterns = { '{name}_test.{ext}' },
-          directories = { 'tests', '.' },
-          extensions = { 'rs' },
         },
       },
 
@@ -205,17 +211,43 @@ These are some common configurations:
         },
       },
 
+      template = {
+        vue = {
+          patterns = { '{name}.vue' },
+          extensions = {
+            target = { 'vue' },
+            origin = { 'ts', 'js' },
+          },
+        },
+
+        svelte = {
+          patterns = { '{name}.svelte' },
+          extensions = {
+            target = { 'svelte' },
+            origin = { 'ts', 'js' },
+          },
+        },
+
+        html = {
+          patterns = { '{name}.html' },
+          extensions = {
+            target = { 'html' },
+            origin = { 'ts', 'js' },
+          },
+        },
+      },
+
       header = {
         c = {
           patterns = { '{name}.{ext}' },
           extensions = {
-            target = { 'h', 'hpp' },
-            origin = { 'c', 'cpp' },
+            target = { 'h', 'hpp', 'hh' },
+            origin = { 'c', 'cpp', 'cc', 'm', 'mm' },
           },
         },
       },
     },
-  })
+})
 
 Pull requests with more examples are welcome.
 
