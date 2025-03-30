@@ -56,6 +56,75 @@ That's the gist of it. See [:help alternaut](https://github.com/PsychoLlama/alte
 
 Alternaut focuses on **co-located** files. If your conventions put files in wildly different parts of the file system, this plugin won't help you. An example is a Rails project where tests are nested in `spec/` and source files are in `app/`.
 
+## Installation
+
+<details>
+  <summary><strong>lazy.nvim</strong></summary>
+
+```lua
+{
+  "PsychoLlama/alternaut.nvim",
+  version = false,
+  lazy = false, -- Already optimized for lazy loading
+  config = function()
+    require('alternaut').setup({
+      -- ...
+    })
+  end,
+}
+```
+
+</details>
+
+<details>
+  <summary><strong>mini.deps</strong></summary>
+
+```lua
+add({ source = 'PsychoLlama/alternaut.nvim' })
+```
+
+</details>
+
+<details>
+  <summary><strong>vim-plug</strong></summary>
+
+```vim
+Plug 'PsychoLlama/alternaut.nvim'
+```
+
+</details>
+
+<details>
+  <summary><strong>home-manager</strong></summary>
+
+Alternaut is available as a flake:
+
+```nix
+# flake.nix
+{
+  inputs.alternaut-nvim.url = "github:PsychoLlama/alternaut.nvim";
+}
+```
+
+```nix
+# home-configuration.nix
+programs.neovim = {
+  plugins = [
+    {
+      plugin = flake-inputs.alternaut-nvim.packages.${pkgs.system}.default;
+      type = "lua";
+      config = ''
+        require('alternaut').setup({
+          -- ...
+        })
+      '';
+    }
+  ];
+};
+```
+
+</details>
+
 ## Keybindings
 
 No keybindings are included by default. Personally I like Alt-number keys but this is up to you.
