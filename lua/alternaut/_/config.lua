@@ -98,6 +98,46 @@ function M.validate_and_normalize(new_config)
   return new_config --[[@as alternaut.Config]]
 end
 
+--- Return the provider(s) associated with a mode. Optionally specify the
+--- exact provider name.
+---
+--- User facing. May log errors.
+---
+--- @param mode string
+--- @param provider_name? string
+--- @return nil|alternaut.Provider[]
+function M.get_providers(mode, provider_name)
+  local cfg = M.get_config()
+
+  if not cfg.modes[mode] then
+    require('alternaut._.log').error(
+      'Mode ',
+      { hi = 'String', msg = mode },
+      ' does not exist.'
+    )
+
+    return nil
+  end
+
+  if provider_name then
+    if not cfg.modes[mode][provider_name] then
+      require('alternaut._.log').error(
+        'Provider ',
+        { hi = 'String', msg = mode },
+        { hi = 'Comment', msg = '.' },
+        { hi = 'String', msg = provider_name },
+        ' does not exist.'
+      )
+
+      return nil
+    end
+
+    return { cfg.modes[mode][provider_name] }
+  end
+
+  return vim.tbl_values(cfg.modes[mode])
+end
+
 return M
 
 --- User-defined config for the plugin.
