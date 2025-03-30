@@ -3,7 +3,6 @@ local M = {}
 --- @type alternaut.Config
 local config = {
   modes = {},
-  modes_by_ft = {},
 }
 
 --- Declared config. Normalization is deferred until the first time it's used.
@@ -50,7 +49,6 @@ function M.validate_and_normalize(new_config)
 
   -- Normalize top-level fields.
   new_config.modes = new_config.modes or {}
-  new_config.modes_by_ft = new_config.modes_by_ft or {}
 
   local trim_file_extension = function(ext)
     if ext:sub(1, 1) == '.' then
@@ -108,10 +106,6 @@ return M
 --- "Modes" are the different types of things you can swap between, such as
 --- tests, CSS files, templates, etc. Each mode contains a set of providers.
 --- @field modes? table<string, table<string, alternaut.UserConfig.Provider>>
----
---- "Modes by file type" declares what modes and providers are supported for
---- a given file type.
---- @field modes_by_ft? table<string, string[]>
 
 --- A provider defines exactly how a source file relates to a target file.
 --- Providers are defined within "modes". For example, saying a `.css` file is
@@ -161,7 +155,6 @@ return M
 --- Normalized user config.
 --- @class alternaut.Config
 --- @field modes table<string, table<string, alternaut.Provider>>
---- @field modes_by_ft table<string, string[]>
 
 --- Normalized user provider.
 --- @class alternaut.Provider

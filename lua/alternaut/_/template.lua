@@ -24,7 +24,7 @@ end
 ---
 --- @param filename string
 --- @param pattern string
---- @return string
+--- @return nil|string
 function M.extract_name(filename, pattern)
   local match_pattern = pattern
     :gsub('%.', '%%.')

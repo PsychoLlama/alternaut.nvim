@@ -9,7 +9,6 @@ describe('set_config', function()
     cfg.set_config({})
 
     assert.are.same({}, cfg.get_config().modes)
-    assert.are.same({}, cfg.get_config().modes_by_ft)
   end)
 
   it('does not mutate the input', function()

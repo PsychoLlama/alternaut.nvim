@@ -24,15 +24,9 @@ function M.basename(path)
   return vim.fs.basename(path)
 end
 
---- @class alternaut._path.Path
---- @field dir string
---- @field basename string
---- @field name string
---- @field ext nil|string
----
 --- Parse a path into its parts.
 --- @param path string
---- @return alternaut._path.Path
+--- @return alternaut._.Path
 function M.parse(path)
   local dir = vim.fs.dirname(path)
   local ext = vim.fn.fnamemodify(path, ':e')
@@ -78,3 +72,10 @@ function M.split(path)
 end
 
 return M
+
+--- Structured full file path.
+--- @class alternaut._.Path
+--- @field dir string
+--- @field basename string
+--- @field name string
+--- @field ext nil|string
