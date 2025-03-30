@@ -1,4 +1,4 @@
-*alternaut* jumps between source and test files
+*alternaut* jumps between source files and alternates
 
 Author:   Jesse Gibson <JesseTheGibson@gmail.com>
 Homepage: https://github.com/PsychoLlama/alternaut.vim
@@ -11,96 +11,250 @@ License:  MIT
 ==============================================================================
 OVERVIEW                                                    *alternaut-overview*
 
-Alternaut is a minimal plugin that powers quick navigation between test files
-and source code. It works by assuming a consistent directory structure and
-naming pattern, which is configurable by file type.
+Alternaut is a zero-dependency Neovim plugin for switching between source
+files and "alternate files", such as tests, styles, templates, headers, and so
+forth.
 
-Get started by defining a convention: |alternaut-conventions|
+It works by defining a set of naming conventions and how they relate
+a source file.
+
+Get started: |alternaut.setup|
 
 ==============================================================================
-CONFIG                                                        *alternaut-config*
+SETUP                                                          *alternaut.setup*
+
+NOTE: Alternaut used to be written in Vimscript. Newer versions are written
+in Lua. If you need the Vimscript documentation, see versions 0.5.0 or older.
+
+Add the following to your `init.lua`:
+>lua
+  require('alternaut').setup{
+    modes = {
+      -- ...
+    },
+  }
+
+TIP: To see examples, see |alternaut-recipes|.
 
 ------------------------------------------------------------------------------
-CONVENTIONS                        *alternaut#conventions* *alternaut-conventions*
+KEYBINDINGS                                              *alternaut-keybindings*
 
-Alternaut doesn't work out of the box. You have to configure it by telling it
-where to find test files by describing a set of conventions. Those conventions
-answer questions like "what's the name of the test directory" or "how are
-tests named?", that kind of thing.
+It's bad practice to set global keybindings without asking. Alternaut doesn't
+include any keybindings by default.
 
-Here's an example for Jest + TypeScript: the Jest framework encourages you to
-keep tests in the `__tests__/` folder right next to your source code, so your
-directory structure might look like this...
+Alternaut recommendeds using `Alt-{number}`, like <A-0> or <A-9> to toggle
+between modes.
+
+Here's what it might look like with Neovim:
+>lua
+  vim.keymap.set('n', '<A-0>', function()
+    require('alternaut').toggle('test')
+  end)
+
+  vim.keymap.set('n', '<A-9>', function()
+    require('alternaut').toggle('style')
+  end)
+
+This is up to you.
+
+------------------------------------------------------------------------------
+MODES                                                           *alternaut.Mode*
+
+`modes` are a way of grouping different conventions. They allow you to organize
+related providers under a common category. For instance, you might have multiple
+testing frameworks across different languages, but want a single command to
+navigate to test files regardless of the specific framework.
+
+The `modes` field contains a table of `providers`. Each provider defines the
+conventions for that language or framework. For example, you might define both
+`pytest` and `go` providers under the `test` mode, each implementing the
+respective framework's conventions:
+>lua
+  require('alternaut').setup({
+    modes = {
+      test = {
+        go = {
+          patterns = { '{name}_spec.{ext}' },
+          directories = { '.' },
+          extensions = { 'go' },
+        },
+
+        pytest = {
+          patterns = { 'test_{name}.{ext}', '{name}_test.{ext}' },
+          directories = { 'tests', '.' },
+          extensions = { 'py' },
+        },
+      },
+    },
+  })
+
+There's nothing special about the name `test`. The name is up to you; it's
+what you pass to |alternaut.toggle()|. The modes can be as broad or specific
+as you need.
+
+------------------------------------------------------------------------------
+PROVIDERS                                                   *alternaut.Provider*
+
+Providers define the conventions for a specific language or framework. It
+draws a connection between the source file and its alternate file by assuming
+some naming conventions.
+
+- `patterns` (required): A list of patterns to try when looking for the
+  alternate file. Each pattern is a string that can contain `{name}` and
+  `{ext}` placeholders. The first pattern that matches a file is used.
+
+- `extensions` (required): A list of possible file extensions. If this is
+  a list, it's assumed that the source file has the same extensions. Otherwise
+  you can define this as a table with `target` and `origin` keys. The `target`
+  key should be a list of possible extensions for the alternate file, and the
+  `origin` key should be a list of possible extensions for the source file.
+
+- `directories` (optional): A list of directories to search for the alternate
+  file. By default it searches the same directory as the source file. All
+  directories are assumed to be relative to the source file's directory. If
+  you override this, you can use `'.'` to search the same directory as the
+  source file.
+
+Files are searched in the order they're defined following a depth-first
+search of patterns > directories > extensions.
+
+Let's look at a concrete example. Here's a provider for Python's `pytest`:
+>lua
+  local provider = {
+    patterns = { '{name}_test.{ext}', 'test_{name}.{ext}' },
+    directories = { 'tests', '.' },
+    extensions = { 'py' },
+  }
+
+Given a project structure like this:
 >
-  src/
-    health-check/
-      __tests__/
-        auth-utils.test.ts
-        uptime-monitor.test.ts
-      auth-utils.ts
-      uptime-monitor.ts
-
-And this is how you'd write the alternaut convention:
->
-  let alternaut#conventions = {}
-  let alternaut#conventions['typescript'] = {
-  \   'directory_naming_conventions': ['__tests__'],
-  \   'file_extensions': ['ts', 'tsx'],
-  \   'file_naming_conventions': ['{name}.test.{ext}'],
-  \ }
-
-That tells alternaut how to behave when you're editing `typescript` files.
-`'directory_naming_conventions'` tells it where to look for tests, which in
-our case is the `__tests__/` folder, and `'file_extensions'` indicates, well,
-the file extension. Some languages have more than one.
-
-Those two fields narrow it down enough for alternaut to figure out the
-directory and file extension. The final thing it needs is the file name, and
-we assume tests have the same file name as the source code (i.e.
-`auth-utils.ts` and `auth-utils.test.ts` share the name `'auth-utils'`).
-`'file_naming_conventions'` fills that gap.
-
-As you might expect, `{name}` and `{ext}` are interpolated with real values.
-`{name}` is the file's name minus the extension (`'uptime-monitor'`, for
-example) and `{ext}` is one of the values in your extensions list.
-
-Bringing it all together: if you're editing the `src/uptime-monitor.ts` file
-and you ask alternaut to open the test file, it would look for these paths and
-return the first match:
-- `src/health-check/__tests__/uptime-monitor.test.ts`
-- `src/health-check/__tests__/uptime-monitor.test.tsx`
-- `src/__tests__/uptime-monitor.test.ts`
-- `src/__tests__/uptime-monitor.test.tsx`
-
-It checks every permutation of the test directory and file extension until it
-finds a match.
-
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Here's another example with python. Say you keep your test files in a `tests/`
-folder and you typically name them `test_<the-file-name>.py`, but sometimes
-leave off the `test_` prefix.
->
-  src/
+  project/
+    __init__.py
+    fibonacci.py
     tests/
-      test_jitter_buffer.py
-    jitter_buffer.py
+      __init__.py
+      test_fibonacci.py
 
-And here's the convention:
->
-  let alternaut#conventions = {}
-  let alternaut#conventions['python'] = {
-  \   'file_naming_conventions': ['test_{name}.{ext}', '{name}.{ext}'],
-  \   'directory_naming_conventions': ['tests'],
-  \   'file_extensions': ['py'],
-  \ }
+When you're editing `project/fibonacci.py` and you run
+`alternaut.toggle('test')`, alternaut will look for these paths:
 
-That tells alternaut to look for `tests/test_{name}.py` and `tests/{name}.py`.
+- `project/tests/fibonacci_test.py`
+- `project/fibonacci_test.py`
+- `project/tests/test_fibonacci.py`
+- `project/test_fibonacci.py`
 
-Hopefully you get the idea.
+If you have a lot of permutations, try to put the most likely patterns first.
+
+==============================================================================
+RECIPES                                                      *alternaut-recipes*
+
+These are some common configurations:
+>lua
+  require('alternaut').setup({
+    modes = {
+      test = {
+        vitest = {
+          patterns = { '{name}.test.{ext}' },
+          directories = { '__tests__' },
+          extensions = { 'ts', 'tsx', 'js', 'jsx' },
+        },
+
+        pytest = {
+          patterns = { 'test_{name}.{ext}', '{name}_test.{ext}' },
+          directories = { 'tests', '.' },
+          extensions = { 'py' },
+        },
+
+        rust = {
+          patterns = { '{name}_test.{ext}', '{name}.{ext}' },
+          directories = { 'tests', '.' },
+          extensions = { 'rs' },
+        },
+
+        go = {
+          patterns = { '{name}_spec.{ext}' },
+          directories = { '.' },
+          extensions = { 'go' },
+        },
+
+        busted = {
+          patterns = { '{name}_spec.{ext}' },
+          directories = { '.', 'spec' },
+          extensions = { 'lua' },
+        },
+
+        vader = {
+          patterns = { '{name}.{ext}' },
+          directories = { 'tests', '.' },
+          extensions = {
+            target = { 'vader' },
+            origin = { 'vim' },
+          },
+        },
+      },
+
+      style = {
+        css = {
+          patterns = { '{name}.{ext}' },
+          extensions = {
+            target = { 'css', 'less', 'scss' },
+            origin = { 'tsx', 'jsx', 'ts', 'js', 'html' },
+          },
+        },
+
+        vanilla_extract = {
+          patterns = { '{name}.css.{ext}' },
+          extensions = {
+            target = { 'ts', },
+            origin = { 'tsx', 'ts' },
+          },
+        },
+      },
+
+      template = {
+        vue = {
+          patterns = { '{name}.vue' },
+          extensions = {
+            target = { 'vue' },
+            origin = { 'ts', 'js' },
+          },
+        },
+
+        svelte = {
+          patterns = { '{name}.svelte' },
+          extensions = {
+            target = { 'svelte' },
+            origin = { 'ts', 'js' },
+          },
+        },
+
+        html = {
+          patterns = { '{name}.html' },
+          extensions = {
+            target = { 'html' },
+            origin = { 'ts', 'js' },
+          },
+        },
+      },
+
+      header = {
+        c = {
+          patterns = { '{name}.{ext}' },
+          extensions = {
+            target = { 'h', 'hpp', 'hh' },
+            origin = { 'c', 'cpp', 'cc', 'm', 'mm' },
+          },
+        },
+      },
+    },
+})
+
+Pull requests with more examples are welcome.
 
 ------------------------------------------------------------------------------
 INTERCEPTORS                     *alternaut#interceptors* *alternaut-interceptors*
+
+NOTE: This feature doesn't have a Lua equivalent yet.
 
 Interceptors allow you to override the conventions on a per-file basis. This
 is an advanced use case, and you probably don't need it. It's primarily useful
@@ -126,30 +280,63 @@ Here's an example of how you'd apply the interceptor to all lua files:
   let alternaut#interceptors['lua'] = [function('s:override_project_defaults')]
 
 ==============================================================================
-MAPPINGS                           *<Plug>(alternaut-toggle)* *alternaut-mappings*
-
-`<Plug>` mappings don't have any effect unless you tie them to a keybinding.
-Here's an example of what that looks like in a vimrc:
->
-  " Bind `<leader>a` to the toggle command.
-  nmap <leader>a <Plug>(alternaut-toggle)
-<
-<Plug>(alternaut-toggle)  This cycles between tests and source code for your
-                          current file. You need this mapping for alternaut to
-                          work.
-
-==============================================================================
 API                                                              *alternaut-api*
 
-Alternaut can be used programmatically. The API is available under the
-alternaut# namespace, but it's unstable. Don't use it yet.
+>lua
+  -- Toggle between a mode's source and alternate file. The `provider` is the
+  -- name of a provider in `mode`. If omitted, all providers in the mode are
+  -- tried.
+  alternaut.toggle(mode, provider)
+
+  -- Same as `toggle` but allows you to specify the file instead of inferring
+  -- it from the current buffer. Once again, `provider` is optional.
+  alternaut.toggle_with({ file = file, mode = 'test', provider = 'vitest' })
+
+  -- Get the alternate file for the current buffer. The first return is
+  -- whether it failed, which may happen if the config is invalid or provider
+  -- doesn't exist. The second return is either the file path or `nil` if it
+  -- couldn't be resolved.
+  local failed, file = alternaut.resolve(mode, provider)
+
+  -- Same as `resolve` but allows you to specify the file instead of inferring
+  -- it from the current buffer.
+  local failed, file = alternaut.resolve_with(options)
 
 ==============================================================================
 CHANGELOG                                                  *alternaut-changelog*
 
-0.1.0~
+0.6.0 - Mar 30, 2025~
 
-Initial release (unstable).
+Added:
+- Rewrote the plugin in Lua. It lives alongside the old implementation.
+- [Lua] New concept of user-defined "modes" enables switching between more
+  than just test files, such as styles, templates, headers, etc.
+
+Deprecated:
+- The Vimscript implementation is no longer maintained. It will be removed in
+  a future release. It only exists to ease migration. Only Neovim will be
+  supported going forward.
+
+0.5.0 - Apr 1, 2021~
+
+Added:
+- Support for tests and source files colocated in the same directory.
+
+Fixed:
+- Massive performance problems when using `'.'` as a directory convention.
+
+0.4.0 - Dec 28, 2020~
+
+Removed:
+- `RegisterLanguage(...)` and `AddInterceptor(...)` (deprecated in v0.2.0).
+
+Changed:
+- (private) renamed API functions to snake_case.
+
+0.3.0 - Sept 22, 2020~
+
+Added:
+- More streamlined `<Plug>(alternaut-toggle)` mapping.
 
 0.2.0 - Sept 21, 2020~
 
@@ -162,25 +349,8 @@ Deprecated:
 - `alternaut#RegisterLanguage(...)` and `alternaut#AddInterceptor(...)` are no
   longer supported. Use the declarative configs instead.
 
-0.3.0 - Sept 22, 2020~
+0.1.0~
 
-Added:
-- More streamlined `<Plug>(alternaut-toggle)` mapping.
-
-0.4.0 - Dec 28, 2020~
-
-Removed:
-- `RegisterLanguage(...)` and `AddInterceptor(...)` (deprecated in v0.2.0).
-
-Changed:
-- (private) renamed API functions to snake_case.
-
-0.5.0 - Apr 1, 2021~
-
-Added:
-- Support for tests and source files colocated in the same directory.
-
-Fixed:
-- Massive performance problems when using `'.'` as a directory convention.
+Initial release (unstable).
 
 vim: ft=help tw=78:

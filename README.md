@@ -1,61 +1,186 @@
 <div align="center">
   <h1>alternaut.nvim</h1>
-
-  <a href="https://github.com/PsychoLlama/alternaut.nvim/actions?query=workflow%3ATest">
-    <img src="https://github.com/PsychoLlama/alternaut.nvim/workflows/Test/badge.svg" alt="Build Status" />
-  </a>
-
-  <p>Jump between your test and source files.</p>
+  <p>Jump between related files</p>
 </div>
+
+## Overview
+
+Alternaut jumps between sources files and "alternate" files, such as tests, styles, headers, templates, or any co-located file with a predictable naming convention.
 
 ## Example
 
-Say you've got a project structure like this:
+Say you're working in a python project with pytest. Your structure looks like this:
 
 ```
-src/
-  __tests__/
-    logic.test.js
-    foo.test.js
-  logic.js
-  foo.js
+project/
+  __init__.py
+  fibonacci.py
+  tests/
+    __init__.py
+    test_fibonacci.py
 ```
 
-and you're editing `src/foo.js`. You want to open the test file.
+Tests are usually prefixed `test_` and placed in a `tests/` directory. They could also live in the same directory.
 
-That's where alternaut comes in. Hit the keybinding and you're in
-`src/__tests__/foo.test.js`. Toggle again and you're right back in the other
-file.
+Tell Alternaut about these naming conventions by defining a provider:
 
-## Configuration
-
-Alternaut doesn't make any assumptions about your project structure. You need
-to tell it your conventions. What do you name your test directories? What do
-you name your test files? That kind of thing.
-
-```viml
-" A typical JavaScript setup.
-let alternaut#conventions = {}
-let alternaut#conventions['javascript'] = {
-\   'directory_naming_conventions': ['__tests__', 'tests'],
-\   'file_naming_conventions': ['{name}.test.{ext}', '{name}.spec.{ext}'],
-\   'file_extensions': ['js', 'jsx'],
-\ }
+```lua
+require('alternaut').setup({
+  modes = {
+    test = {
+      -- naming conventions for Pytest
+      pytest = {
+        patterns = { 'test_{name}.{ext}' },
+        directories = { 'tests', '.' },
+        extensions = { '.py' },
+      },
+    },
+  },
+})
 ```
 
-Once that's registered, create a mapping:
+When you're editing `project/fibonacci.py` and you run
+`alternaut.toggle('test')`, alternaut will look for these paths:
 
-```viml
-nmap <leader>a <Plug>(alternaut-toggle)
+- `project/tests/test_fibonacci.py`
+- `project/test_fibonacci.py`
+
+It opens the test file. Toggle again and you're back in `fibonacci.py`.
+
+That's the gist of it. See [:help alternaut](https://github.com/PsychoLlama/alternaut.nvim/blob/main/doc/alternaut.txt) for details and specific examples.
+
+> [!NOTE]
+> This plugin used to be written in Vimscript. Since v0.6.0 the VimL implementation is deprecated and will be removed in a future release.
+
+## Non-Goals
+
+Alternaut focuses on **co-located** files. If your conventions put files in wildly different parts of the file system, this plugin won't help you. An example is a Rails project where tests are nested in `spec/` and source files are in `app/`.
+
+## Keybindings
+
+No keybindings are included by default. Personally I like Alt-number keys but this is up to you.
+
+```lua
+-- Alt-0 to toggle between tests
+vim.keymap.set('n', '<A-0>', function()
+  require('alternaut').toggle('test')
+end)
+
+-- Alt-9 to toggle between styles
+vim.keymap.set('n', '<A-9>', function()
+  require('alternaut').toggle('style')
+end)
 ```
-
-Any time you open a `javascript` file, press `<leader>a` and it'll toggle
-between the corresponding test and source file.
 
 ## [Documentation](https://github.com/PsychoLlama/alternaut.nvim/blob/main/doc/alternaut.txt)
 
-The way of our people is [help files](https://github.com/PsychoLlama/alternaut.nvim/blob/main/doc/alternaut.txt).
+The way of our people is help files.
 
 ```viml
 :help alternaut
 ```
+
+## Recipes
+
+```lua
+require('alternaut').setup({
+  modes = {
+    test = {
+      vitest = {
+        patterns = { '{name}.test.{ext}' },
+        directories = { '__tests__' },
+        extensions = { 'ts', 'tsx', 'js', 'jsx' },
+      },
+
+      pytest = {
+        patterns = { 'test_{name}.{ext}', '{name}_test.{ext}' },
+        directories = { 'tests', '.' },
+        extensions = { 'py' },
+      },
+
+      rust = {
+        patterns = { '{name}_test.{ext}', '{name}.{ext}' },
+        directories = { 'tests', '.' },
+        extensions = { 'rs' },
+      },
+
+      go = {
+        patterns = { '{name}_spec.{ext}' },
+        directories = { '.' },
+        extensions = { 'go' },
+      },
+
+      busted = {
+        patterns = { '{name}_spec.{ext}' },
+        directories = { '.', 'spec' },
+        extensions = { 'lua' },
+      },
+
+      vader = {
+        patterns = { '{name}.{ext}' },
+        directories = { 'tests', '.' },
+        extensions = {
+          target = { 'vader' },
+          origin = { 'vim' },
+        },
+      },
+    },
+
+    style = {
+      css = {
+        patterns = { '{name}.{ext}' },
+        extensions = {
+          target = { 'css', 'less', 'scss' },
+          origin = { 'tsx', 'jsx', 'ts', 'js', 'html' },
+        },
+      },
+
+      vanilla_extract = {
+        patterns = { '{name}.css.{ext}' },
+        extensions = {
+          target = { 'ts', },
+          origin = { 'tsx', 'ts' },
+        },
+      },
+    },
+
+    template = {
+      vue = {
+        patterns = { '{name}.vue' },
+        extensions = {
+          target = { 'vue' },
+          origin = { 'ts', 'js' },
+        },
+      },
+
+      svelte = {
+        patterns = { '{name}.svelte' },
+        extensions = {
+          target = { 'svelte' },
+          origin = { 'ts', 'js' },
+        },
+      },
+
+      html = {
+        patterns = { '{name}.html' },
+        extensions = {
+          target = { 'html' },
+          origin = { 'ts', 'js' },
+        },
+      },
+    },
+
+    header = {
+      c = {
+        patterns = { '{name}.{ext}' },
+        extensions = {
+          target = { 'h', 'hpp', 'hh' },
+          origin = { 'c', 'cpp', 'cc', 'm', 'mm' },
+        },
+      },
+    },
+  },
+})
+```
+
+Pull requests are welcome for more examples.
