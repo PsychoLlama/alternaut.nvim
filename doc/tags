@@ -1,11 +1,11 @@
-<Plug>(alternaut-toggle)	alternaut.txt	/*<Plug>(alternaut-toggle)*
 alternaut	alternaut.txt	/*alternaut*
-alternaut#conventions	alternaut.txt	/*alternaut#conventions*
 alternaut#interceptors	alternaut.txt	/*alternaut#interceptors*
 alternaut-api	alternaut.txt	/*alternaut-api*
 alternaut-changelog	alternaut.txt	/*alternaut-changelog*
-alternaut-config	alternaut.txt	/*alternaut-config*
-alternaut-conventions	alternaut.txt	/*alternaut-conventions*
 alternaut-interceptors	alternaut.txt	/*alternaut-interceptors*
-alternaut-mappings	alternaut.txt	/*alternaut-mappings*
+alternaut-keybindings	alternaut.txt	/*alternaut-keybindings*
 alternaut-overview	alternaut.txt	/*alternaut-overview*
+alternaut-recipes	alternaut.txt	/*alternaut-recipes*
+alternaut.Mode	alternaut.txt	/*alternaut.Mode*
+alternaut.Provider	alternaut.txt	/*alternaut.Provider*
+alternaut.setup	alternaut.txt	/*alternaut.setup*

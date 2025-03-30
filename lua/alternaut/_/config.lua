@@ -145,7 +145,10 @@ return M
 ---
 --- "Modes" are the different types of things you can swap between, such as
 --- tests, CSS files, templates, etc. Each mode contains a set of providers.
---- @field modes? table<string, table<string, alternaut.UserConfig.Provider>>
+--- @field modes? table<string, alternaut.Mode>
+---
+--- Collection of providers.
+--- @alias alternaut.Mode table<string, alternaut.UserConfig.Provider>
 
 --- A provider defines exactly how a source file relates to a target file.
 --- Providers are defined within "modes". For example, saying a `.css` file is
