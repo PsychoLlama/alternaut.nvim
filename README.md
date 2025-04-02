@@ -54,7 +54,7 @@ That's the gist of it. See [:help alternaut](https://github.com/PsychoLlama/alte
 
 ## Non-Goals
 
-Alternaut focuses on **co-located** files. If your conventions put files in wildly different parts of the file system, this plugin won't help you. An example is a Rails project where tests are nested in `spec/` and source files are in `app/`.
+Alternaut focuses on **co-located** files. If your conventions put files in wildly different parts of the file system, this plugin won't help you. An example is a project that puts all tests in a `$REPO/test/` directory and all sources under `$REPO/src/`.
 
 ## Installation
 
