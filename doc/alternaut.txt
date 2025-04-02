@@ -74,7 +74,7 @@ respective framework's conventions:
     modes = {
       test = {
         go = {
-          patterns = { '{name}_spec.{ext}' },
+          patterns = { '{name}_test.{ext}' },
           directories = { '.' },
           extensions = { 'go' },
         },
@@ -172,7 +172,7 @@ These are some common configurations:
         },
 
         go = {
-          patterns = { '{name}_spec.{ext}' },
+          patterns = { '{name}_test.{ext}' },
           directories = { '.' },
           extensions = { 'go' },
         },

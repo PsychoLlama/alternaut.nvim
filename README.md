@@ -176,7 +176,7 @@ require('alternaut').setup({
       },
 
       go = {
-        patterns = { '{name}_spec.{ext}' },
+        patterns = { '{name}_test.{ext}' },
         directories = { '.' },
         extensions = { 'go' },
       },
