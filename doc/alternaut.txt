@@ -23,9 +23,6 @@ Get started: |alternaut.setup|
 ==============================================================================
 SETUP                                                          *alternaut.setup*
 
-NOTE: Alternaut used to be written in Vimscript. Newer versions are written
-in Lua. If you need the Vimscript documentation, see versions 0.5.0 or older.
-
 Add the following to your `init.lua`:
 >lua
   require('alternaut').setup{
@@ -251,34 +248,6 @@ These are some common configurations:
 
 Pull requests with more examples are welcome.
 
-------------------------------------------------------------------------------
-INTERCEPTORS                     *alternaut#interceptors* *alternaut-interceptors*
-
-NOTE: This feature doesn't have a Lua equivalent yet.
-
-Interceptors allow you to override the conventions on a per-file basis. This
-is an advanced use case, and you probably don't need it. It's primarily useful
-when there's an oddball project that doesn't follow your typical testing
-patterns forcing you to override the conventions for that project alone.
-
-Interceptors are registered through the `alternaut#interceptors` variable.
-It's a mapping between file types and a list of functions. Each function
-executes in a series. Realistically you'll never need more than one (or even
-one at all).
-
-The interceptor is just a function that accepts the file path and the current
-file conventions. Whatever you return becomes the new file conventions.
->
-  func s:override_project_defaults(file_path, conventions) abort
-    let a:conventions.directory_naming_conventions = ['look-here-instead']
-    return a:conventions
-  endfunc
-
-Here's an example of how you'd apply the interceptor to all lua files:
->
-  let alternaut#interceptors = {}
-  let alternaut#interceptors['lua'] = [function('s:override_project_defaults')]
-
 ==============================================================================
 API                                                              *alternaut-api*
 
@@ -304,6 +273,12 @@ API                                                              *alternaut-api*
 
 ==============================================================================
 CHANGELOG                                                  *alternaut-changelog*
+
+0.7.0 - Oct 12, 2025~
+
+Removed:
+- The Vimscript implementation no longer ships alongside the Lua
+  implementation.
 
 0.6.0 - Mar 30, 2025~
 

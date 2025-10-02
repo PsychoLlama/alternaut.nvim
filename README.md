@@ -8,7 +8,7 @@
 Alternaut jumps between sources files and "alternate" files, such as tests, styles, headers, templates, or any co-located file with a predictable naming convention.
 
 > [!NOTE]
-> This plugin used to be written in Vimscript. Since v0.6.0 the VimL implementation is deprecated and will be removed in a future release.
+> The Vimscript implementation was removed in `v0.7.0`. Pin to an older tag if you still need support.
 
 ## Example
 
