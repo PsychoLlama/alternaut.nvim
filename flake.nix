@@ -29,7 +29,12 @@
           alternaut-nvim = pkgs.vimUtils.buildVimPlugin {
             pname = "alternaut.nvim";
             version = self.shortRev or "latest";
-            src = ./.;
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.difference ./. (
+                lib.fileset.fileFilter (file: lib.hasSuffix "_spec.lua" file.name) ./.
+              );
+            };
           };
         }
       );
