@@ -36,9 +36,13 @@
 
         let
           standardPackages = [
+            pkgs.just
+            pkgs.lua-language-server
             pkgs.luajitPackages.luacheck
             pkgs.luajitPackages.vusted
+            pkgs.nixfmt-rfc-style
             pkgs.stylua
+            pkgs.treefmt
           ];
         in
 
