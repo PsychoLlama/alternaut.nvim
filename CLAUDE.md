@@ -1,6 +1,6 @@
 ## Development
 
-- `just test` - Run all checks. Must pass before committing.
+- `just check` - Run all checks. Must pass before committing.
 
 ## Documentation
 

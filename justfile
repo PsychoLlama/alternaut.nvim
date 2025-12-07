@@ -13,7 +13,7 @@ lint:
   luacheck ./lua
 
 # Run Lua unit tests with vusted.
-unit:
+test:
   vusted ./lua
 
 # Run lua-language-server type checks.
@@ -24,11 +24,11 @@ typecheck:
   lua-language-server --check . --checklevel=Warning
 
 # Run all checks (lint + typecheck + unit tests), reporting all failures.
-test:
+check:
   #!/usr/bin/env bash
   failed=0
   just lint || failed=1
-  just unit || failed=1
+  just test || failed=1
   just typecheck || failed=1
   just fmt-check || failed=1
   exit $failed
