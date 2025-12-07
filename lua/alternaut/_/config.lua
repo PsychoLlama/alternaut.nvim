@@ -60,7 +60,9 @@ function M.validate_and_normalize(new_config)
 
   -- Normalize providers.
   for mode, providers in pairs(new_config.modes) do
-    for provider_name, provider in pairs(providers) do
+    for provider_name, provider in
+      pairs(providers --[[@as table<string, alternaut.Provider>]])
+    do
       local ident = mode .. '.' .. provider_name
 
       -- Default to searching sibling files.
@@ -164,32 +166,15 @@ return M
 --- provider for `.less` files, and another for `.scss`. All would live in
 --- a `style` mode that knows how to resolve any type of style-related assets.
 --- @class alternaut.UserConfig.Provider
----
---- A pattern defines how a source file's name relates to a target file's
---- name. For example, a test file might always end in `{name}_spec.py`.
---- Patterns have access to the following variables:
----
---- - `{name}`: The name of the source file, without the extension.
---- - `{ext}`: The extension of the source file.
----
---- There can be many patterns. Each permutation is searched in the order it
---- is defined. Patterns can be strings (simple) or tables (with transforms).
---- @field patterns (string | alternaut.UserConfig.Pattern)[]
----
+--- @field patterns (string | alternaut.UserConfig.Pattern)[] A pattern defines how a source file's name relates to a target file's name. For example, a test file might always end in `{name}_spec.py`. Patterns have access to `{name}` (source file name without extension) and `{ext}` (extension).
+--- @field extensions string[] | alternaut.UserConfig.Extensions Possible file extensions. If a list, it's assumed source and target share the same extensions.
+--- @field directories? string[] Directories searched while resolving target files. Defaults to current directory.
+
 --- A pattern with optional casing transforms.
 --- @class alternaut.UserConfig.Pattern
 --- @field template string The pattern template (e.g., "{name}.{ext}")
 --- @field transform? alternaut.UserConfig.Transform Casing transforms for name
----
---- Possible file extensions. If this is a list of strings, it's assumed that
---- the source and target files share the same extensions.
---- @field extensions string[] | alternaut.UserConfig.Extensions
----
---- Directories searched while resolving target files. This defaults to the
---- current directory. If you override it, you may want to explicitly include
---- the current directory (`./`).
---- @field directories? string[]
----
+
 --- Possible file extensions, both for the target file and the source file.
 --- Alternaut needs the source file extensions in order to navigate back. Note
 --- that the leading `.` is inferred and optional.
