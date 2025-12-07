@@ -1,7 +1,7 @@
 *alternaut* jumps between source files and alternates
 
 Author:   Jesse Gibson <JesseTheGibson@gmail.com>
-Homepage: https://github.com/PsychoLlama/alternaut.vim
+Homepage: https://github.com/PsychoLlama/alternaut.nvim
 License:  MIT
 
 
