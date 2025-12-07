@@ -32,7 +32,7 @@ describe('set_config', function()
     })
 
     assert.are.same({
-      patterns = { '{name}_spec.{ext}' },
+      patterns = { { template = '{name}_spec.{ext}' } },
       directories = { '.' },
       extensions = {
         target = { 'py' },
@@ -57,7 +57,7 @@ describe('set_config', function()
     })
 
     assert.are.same({
-      patterns = { '{name}_spec.{ext}' },
+      patterns = { { template = '{name}_spec.{ext}' } },
       directories = { '.' },
       extensions = {
         target = { 'py' },
@@ -80,12 +80,73 @@ describe('set_config', function()
     })
 
     assert.are.same({
-      patterns = { '{name}_spec.{ext}' },
+      patterns = { { template = '{name}_spec.{ext}' } },
       directories = { 'tests' },
       extensions = {
         target = { 'py' },
         origin = { 'py' },
       },
     }, cfg.get_config().modes.style.css)
+  end)
+
+  it('normalizes pattern objects with transforms', function()
+    cfg.set_config({
+      modes = {
+        style = {
+          css = {
+            patterns = {
+              {
+                template = '{name}.{ext}',
+                transform = { origin = 'pascal', target = 'kebab' },
+              },
+            },
+            extensions = {
+              target = { 'css' },
+              origin = { 'tsx' },
+            },
+          },
+        },
+      },
+    })
+
+    assert.are.same({
+      patterns = {
+        {
+          template = '{name}.{ext}',
+          transform = { origin = 'pascal', target = 'kebab' },
+        },
+      },
+      directories = { '.' },
+      extensions = {
+        target = { 'css' },
+        origin = { 'tsx' },
+      },
+    }, cfg.get_config().modes.style.css)
+  end)
+
+  it('supports mixed string and object patterns', function()
+    cfg.set_config({
+      modes = {
+        style = {
+          css = {
+            patterns = {
+              '{name}.{ext}',
+              {
+                template = '{name}.module.{ext}',
+                transform = { origin = 'pascal', target = 'kebab' },
+              },
+            },
+            extensions = { 'css' },
+          },
+        },
+      },
+    })
+
+    local result = cfg.get_config().modes.style.css
+    assert.are.same({ template = '{name}.{ext}' }, result.patterns[1])
+    assert.are.same({
+      template = '{name}.module.{ext}',
+      transform = { origin = 'pascal', target = 'kebab' },
+    }, result.patterns[2])
   end)
 end)

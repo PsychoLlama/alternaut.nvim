@@ -22,12 +22,15 @@ function M.get_alternate_search_path(source_path, provider)
   for _, pattern in ipairs(provider.patterns) do
     for _, directory in ipairs(target_directories) do
       for _, ext in ipairs(provider.extensions.target) do
+        -- Use target transform when going from source to alternate
+        local target_transform = pattern.transform
+          and pattern.transform.target
         local possible_path = path.join(
           directory,
-          template.render(pattern, {
+          template.render(pattern.template, {
             name = src.name,
             ext = ext,
-          })
+          }, target_transform)
         )
 
         table.insert(result, possible_path)
@@ -52,7 +55,10 @@ function M.get_source_search_path(alternate_path, provider)
   local result = {}
 
   for _, pattern in ipairs(provider.patterns) do
-    local src_name = template.extract_name(alt.basename, pattern)
+    -- Use origin transform when going from alternate back to source
+    local origin_transform = pattern.transform and pattern.transform.origin
+    local src_name =
+      template.extract_name(alt.basename, pattern.template, origin_transform)
 
     for _, directory in ipairs(provider.directories) do
       local upward_path = directory

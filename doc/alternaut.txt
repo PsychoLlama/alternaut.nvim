@@ -97,8 +97,24 @@ draws a connection between the source file and its alternate file by assuming
 some naming conventions.
 
 - `patterns` (required): A list of patterns to try when looking for the
-  alternate file. Each pattern is a string that can contain `{name}` and
-  `{ext}` placeholders. The first pattern that matches a file is used.
+  alternate file. Each pattern can be a string or a table. String patterns
+  contain `{name}` and `{ext}` placeholders. The first pattern that matches
+  a file is used.
+
+  For files with different naming conventions (e.g., PascalCase components
+  with kebab-case CSS), use a table with `template` and `transform` fields:
+>lua
+    patterns = {
+      {
+        template = '{name}.{ext}',
+        transform = {
+          origin = 'pascal',  -- source file casing
+          target = 'kebab',   -- alternate file casing
+        },
+      },
+    }
+<
+  Available transforms: `kebab`, `snake`, `camel`, `pascal`
 
 - `extensions` (required): A list of possible file extensions. If this is
   a list, it's assumed that the source file has the same extensions. Otherwise
@@ -196,6 +212,21 @@ These are some common configurations:
           extensions = {
             target = { 'css', 'less', 'scss' },
             origin = { 'tsx', 'jsx', 'ts', 'js', 'html' },
+          },
+        },
+
+        -- Use casing transforms for PascalCase components with kebab-case CSS.
+        -- MyButton.tsx <-> my-button.css
+        css_kebab = {
+          patterns = {
+            {
+              template = '{name}.{ext}',
+              transform = { origin = 'pascal', target = 'kebab' },
+            },
+          },
+          extensions = {
+            target = { 'css', 'less', 'scss' },
+            origin = { 'tsx', 'jsx', 'ts', 'js' },
           },
         },
 

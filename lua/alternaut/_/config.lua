@@ -92,6 +92,14 @@ function M.validate_and_normalize(new_config)
         target = vim.tbl_map(trim_file_extension, provider.extensions.target),
         origin = vim.tbl_map(trim_file_extension, provider.extensions.origin),
       }
+
+      -- Normalize patterns to always be tables with `template` field.
+      provider.patterns = vim.tbl_map(function(pattern)
+        if type(pattern) == 'string' then
+          return { template = pattern }
+        end
+        return pattern
+      end, provider.patterns or {})
     end
   end
 
@@ -165,8 +173,13 @@ return M
 --- - `{ext}`: The extension of the source file.
 ---
 --- There can be many patterns. Each permutation is searched in the order it
---- is defined.
---- @field patterns string[]
+--- is defined. Patterns can be strings (simple) or tables (with transforms).
+--- @field patterns (string | alternaut.UserConfig.Pattern)[]
+---
+--- A pattern with optional casing transforms.
+--- @class alternaut.UserConfig.Pattern
+--- @field template string The pattern template (e.g., "{name}.{ext}")
+--- @field transform? alternaut.UserConfig.Transform Casing transforms for name
 ---
 --- Possible file extensions. If this is a list of strings, it's assumed that
 --- the source and target files share the same extensions.
@@ -192,6 +205,11 @@ return M
 --- allows Alternaut to navigate back to the source file.
 --- @field origin string[]
 
+--- Casing transforms for the {name} variable.
+--- @class alternaut.UserConfig.Transform
+--- @field origin string Casing of the source file name (e.g., "pascal")
+--- @field target string Casing of the target file name (e.g., "kebab")
+
 --- Normalized user `extensions` config.
 --- @alias alternaut.Extensions alternaut.UserConfig.Extensions
 
@@ -201,6 +219,14 @@ return M
 
 --- Normalized user provider.
 --- @class alternaut.Provider
---- @field patterns string[]
+--- @field patterns alternaut.Pattern[]
 --- @field directories string[]
 --- @field extensions alternaut.Extensions
+
+--- Normalized pattern.
+--- @class alternaut.Pattern
+--- @field template string The pattern template
+--- @field transform? alternaut.Transform Casing transforms (nil if no transform)
+
+--- Normalized transform.
+--- @alias alternaut.Transform alternaut.UserConfig.Transform

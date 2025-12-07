@@ -4,7 +4,7 @@ describe('search_plan', function()
   describe('get_alternate_search_path', function()
     it('should return a list of search paths', function()
       local result = plan.get_alternate_search_path('foo/bar/baz.c', {
-        patterns = { '{name}.{ext}' },
+        patterns = { { template = '{name}.{ext}' } },
         directories = { '.' },
         extensions = {
           target = { 'h' },
@@ -19,7 +19,10 @@ describe('search_plan', function()
 
     it('can expand many patterns', function()
       local result = plan.get_alternate_search_path('/foo/bar.ts', {
-        patterns = { '{name}_test.{ext}', '{name}_spec.{ext}' },
+        patterns = {
+          { template = '{name}_test.{ext}' },
+          { template = '{name}_spec.{ext}' },
+        },
         directories = { '.' },
         extensions = {
           target = { 'ts', 'tsx' },
@@ -37,7 +40,7 @@ describe('search_plan', function()
 
     it('can expand many directories', function()
       local result = plan.get_alternate_search_path('/foo/bar.ts', {
-        patterns = { '{name}.test.{ext}' },
+        patterns = { { template = '{name}.test.{ext}' } },
         directories = { '__tests__', 'tests' },
         extensions = {
           target = { 'ts', 'tsx' },
@@ -55,7 +58,10 @@ describe('search_plan', function()
 
     it('searches patterns>directories>extensions in order', function()
       local result = plan.get_alternate_search_path('/foo/bar.ts', {
-        patterns = { '{name}.test.{ext}', '{name}.unit.{ext}' },
+        patterns = {
+          { template = '{name}.test.{ext}' },
+          { template = '{name}.unit.{ext}' },
+        },
         directories = { '__tests__', 'tests' },
         extensions = {
           target = { 'ts', 'tsx' },
@@ -74,12 +80,32 @@ describe('search_plan', function()
         '/foo/tests/bar.unit.tsx',
       }, result)
     end)
+
+    it('applies target transform when generating paths', function()
+      local result = plan.get_alternate_search_path('/foo/MyButton.tsx', {
+        patterns = {
+          {
+            template = '{name}.{ext}',
+            transform = { origin = 'pascal', target = 'kebab' },
+          },
+        },
+        directories = { '.' },
+        extensions = {
+          target = { 'css' },
+          origin = { 'tsx' },
+        },
+      })
+
+      assert.are.same({
+        '/foo/my-button.css',
+      }, result)
+    end)
   end)
 
   describe('get_source_search_path', function()
     it('returns a list of possible locations for the source file', function()
       local result = plan.get_source_search_path('/foo/bar_spec.py', {
-        patterns = { '{name}_spec.{ext}' },
+        patterns = { { template = '{name}_spec.{ext}' } },
         directories = { '.' },
         extensions = {
           target = { 'py' },
@@ -95,7 +121,7 @@ describe('search_plan', function()
     it('searches the correct parent directories', function()
       local result =
         plan.get_source_search_path('/foo/__tests__/bar.test.ts', {
-          patterns = { '{name}.test.{ext}' },
+          patterns = { { template = '{name}.test.{ext}' } },
           directories = { '__tests__', '.' },
           extensions = {
             target = { 'ts' },
@@ -114,7 +140,7 @@ describe('search_plan', function()
     it('skips absolute directories (unsolveable)', function()
       local result =
         plan.get_source_search_path('/foo/__tests__/bar.test.ts', {
-          patterns = { '{name}.test.{ext}' },
+          patterns = { { template = '{name}.test.{ext}' } },
           directories = { '/tmp', '__tests__' },
           extensions = {
             target = { 'ts' },
@@ -124,6 +150,26 @@ describe('search_plan', function()
 
       assert.are.same({
         '/foo/bar.ts',
+      }, result)
+    end)
+
+    it('applies origin transform when extracting source name', function()
+      local result = plan.get_source_search_path('/foo/my-button.css', {
+        patterns = {
+          {
+            template = '{name}.{ext}',
+            transform = { origin = 'pascal', target = 'kebab' },
+          },
+        },
+        directories = { '.' },
+        extensions = {
+          target = { 'css' },
+          origin = { 'tsx' },
+        },
+      })
+
+      assert.are.same({
+        '/foo/MyButton.tsx',
       }, result)
     end)
   end)

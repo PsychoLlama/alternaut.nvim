@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Casing transforms for patterns. Enables matching files with different naming
+  conventions, like PascalCase components with kebab-case CSS files. Use the
+  new pattern object syntax with `transform.origin` and `transform.target`.
+
 ## [0.7.0] - 2025-10-12
 
 ### Removed

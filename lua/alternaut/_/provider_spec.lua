@@ -4,7 +4,7 @@ describe('provider', function()
   describe('get_matching_providers', function()
     --- @type alternaut.Provider
     local pytest = {
-      patterns = { '{name}_test.{ext}' },
+      patterns = { { template = '{name}_test.{ext}' } },
       directories = { 'tests', '.' },
       extensions = {
         origin = { 'py' },
@@ -14,7 +14,7 @@ describe('provider', function()
 
     --- @type alternaut.Provider
     local vitest = {
-      patterns = { '{name}.test.{ext}' },
+      patterns = { { template = '{name}.test.{ext}' } },
       directories = { '__tests__' },
       extensions = {
         origin = { 'ts', 'tsx' },

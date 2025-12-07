@@ -41,6 +41,62 @@ describe('template', function()
         'alternaut: pattern contains unknown variable: {no_such_var}'
       )
     end)
+
+    it('applies kebab transform to name', function()
+      local str = '{name}.css'
+      local vars = { name = 'MyButton' }
+
+      local result = template.render(str, vars, 'kebab')
+
+      assert.are.equal('my-button.css', result)
+    end)
+
+    it('applies snake transform to name', function()
+      local str = '{name}.py'
+      local vars = { name = 'MyButton' }
+
+      local result = template.render(str, vars, 'snake')
+
+      assert.are.equal('my_button.py', result)
+    end)
+
+    it('applies camel transform to name', function()
+      local str = '{name}.ts'
+      local vars = { name = 'my-button' }
+
+      local result = template.render(str, vars, 'camel')
+
+      assert.are.equal('myButton.ts', result)
+    end)
+
+    it('applies pascal transform to name', function()
+      local str = '{name}.tsx'
+      local vars = { name = 'my-button' }
+
+      local result = template.render(str, vars, 'pascal')
+
+      assert.are.equal('MyButton.tsx', result)
+    end)
+
+    it('fails on unknown transform', function()
+      local str = '{name}'
+
+      local fail = function()
+        template.render(str, { name = 'foo' }, 'unknown')
+      end
+
+      assert.has_error(fail, 'alternaut: unknown transform: unknown')
+    end)
+
+    it('does not transform ext variable', function()
+      local str = '{name}.{ext}'
+      local vars = { name = 'MyComponent', ext = 'CSS' }
+
+      local result = template.render(str, vars, 'kebab')
+
+      -- Only name should be transformed, not ext
+      assert.are.equal('my-component.CSS', result)
+    end)
   end)
 
   describe('extract_name', function()
@@ -88,5 +144,35 @@ describe('template', function()
 
       assert.are.equal('foo-bar', result)
     end)
+
+    it('applies origin transform to extracted name', function()
+      local filename = 'my-button.css'
+      local pattern = '{name}.{ext}'
+
+      local result = template.extract_name(filename, pattern, 'pascal')
+
+      assert.are.equal('MyButton', result)
+    end)
+
+    it('returns nil when pattern does not match', function()
+      local filename = 'something-else.js'
+      local pattern = '{name}.css'
+
+      local result = template.extract_name(filename, pattern)
+
+      assert.is_nil(result)
+    end)
+
+    it(
+      'returns extracted name without transform when none provided',
+      function()
+        local filename = 'my-button.css'
+        local pattern = '{name}.{ext}'
+
+        local result = template.extract_name(filename, pattern)
+
+        assert.are.equal('my-button', result)
+      end
+    )
   end)
 end)

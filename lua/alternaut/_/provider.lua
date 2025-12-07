@@ -40,7 +40,7 @@ function M.matches_name(file, provider)
   local template = require('alternaut._.template')
 
   for _, pattern in ipairs(provider.patterns) do
-    if template.extract_name(file.basename, pattern) then
+    if template.extract_name(file.basename, pattern.template) then
       return true
     end
   end

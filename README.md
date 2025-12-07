@@ -206,6 +206,21 @@ require('alternaut').setup({
         },
       },
 
+      -- Use casing transforms for PascalCase components with kebab-case CSS.
+      -- MyButton.tsx <-> my-button.css
+      css_kebab = {
+        patterns = {
+          {
+            template = '{name}.{ext}',
+            transform = { origin = 'pascal', target = 'kebab' },
+          },
+        },
+        extensions = {
+          target = { 'css', 'less', 'scss' },
+          origin = { 'tsx', 'jsx', 'ts', 'js' },
+        },
+      },
+
       vanilla_extract = {
         patterns = { '{name}.css.{ext}' },
         extensions = {
