@@ -1,0 +1,17 @@
+name: CI
+on: push
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: Check
+    defaults:
+      run:
+        shell: nix develop '.#ci' --command bash -eo pipefail {0}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v22
+      - uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-flakehub: false
+      - run: just check
