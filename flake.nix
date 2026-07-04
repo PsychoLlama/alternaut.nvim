@@ -40,31 +40,24 @@
       );
 
       devShells = eachSystem (
-        system: pkgs:
-
-        let
-          standardPackages = [
-            pkgs.just
-            pkgs.lua-language-server
-            pkgs.luajitPackages.luacheck
-            pkgs.luajitPackages.vusted
-            pkgs.nixfmt-rfc-style
-            pkgs.stylua
-            pkgs.treefmt
-          ];
-        in
-
-        {
+        system: pkgs: rec {
           # For developing locally. Uses the system neovim.
           default = pkgs.mkShell {
-            packages = standardPackages;
+            packages = [
+              pkgs.just
+              pkgs.lua-language-server
+              pkgs.luajitPackages.luacheck
+              pkgs.luajitPackages.vusted
+              pkgs.nixfmt-rfc-style
+              pkgs.stylua
+              pkgs.treefmt
+            ];
           };
 
           # For CI. Uses an unconfigured neovim package.
           ci = pkgs.mkShell {
-            packages = standardPackages ++ [
-              pkgs.neovim
-            ];
+            inputsFrom = [ default ];
+            packages = [ pkgs.neovim ];
           };
         }
       );
