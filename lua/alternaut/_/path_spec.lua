@@ -75,7 +75,7 @@ describe('path', function()
 
     it('can join paths with empty strings', function()
       assert.are.equal(path.join('a', '', 'c'), 'a/c')
-      assert.are.equal(path.join('a', '', 'c', ''), 'a/c/')
+      assert.are.equal(path.join('a', '', 'c', ''), 'a/c')
       assert.are.equal(path.join('a', '', 'c', '', 'e'), 'a/c/e')
     end)
 
